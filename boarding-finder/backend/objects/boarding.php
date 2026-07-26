@@ -17,6 +17,7 @@ class Boarding {
     public $facilities;
     public $contact_phone;
     public $is_approved;
+    public $is_available;
     public $created_at;
 
     public function __construct($db) {
@@ -242,6 +243,27 @@ public function create() {
             'total_income' => (int)$total_income,
             'total_bathrooms' => (int)$total_bathrooms
         );
+    }
+
+    public function toggleAvailability($boarding_id, $owner_id) {
+        // First verify ownership
+        $check = "SELECT id, is_available FROM " . $this->table_name . " WHERE id = ? AND owner_id = ?";
+        $stmt = $this->conn->prepare($check);
+        $stmt->bindParam(1, $boarding_id);
+        $stmt->bindParam(2, $owner_id);
+        $stmt->execute();
+        if($stmt->rowCount() === 0) return false;
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        $newStatus = $row['is_available'] ? 0 : 1;
+
+        $update = "UPDATE " . $this->table_name . " SET is_available = ? WHERE id = ?";
+        $stmt2 = $this->conn->prepare($update);
+        $stmt2->bindParam(1, $newStatus);
+        $stmt2->bindParam(2, $boarding_id);
+        if($stmt2->execute()) {
+            return array('is_available' => (bool)$newStatus);
+        }
+        return false;
     }
 }
 ?>

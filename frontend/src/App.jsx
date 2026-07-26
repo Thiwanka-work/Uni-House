@@ -16,6 +16,7 @@ import AdminDashboard from './pages/AdminDashboard'
 import Favorites from './pages/Favorites'
 import EditService from './pages/EditService'
 import ServiceDashboard from './pages/ServiceDashboard'
+import OwnerMessages from './pages/OwnerMessages'
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
             <Route path="/favorites" element={<Favorites />} />
             <Route path="/edit-service/:id" element={<EditService />} />
             <Route path="/my-services" element={<ServiceDashboard />} />
+            <Route path="/messages" element={<OwnerMessages />} />
           </Routes>
         </div>
       </Router>

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Key, Rocket, Search, PenTool, Heart, Plus, BarChart3, Wrench, Settings, LogOut, Menu, X } from 'lucide-react';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
@@ -16,316 +18,260 @@ const Navbar = () => {
 
   const NavItem = ({ to, label, icon: Icon, isButton = false, onClick }) => (
     <div
-      className="relative group"
+      className="relative"
       onMouseEnter={() => setHoveredItem(label)}
       onMouseLeave={() => setHoveredItem(null)}
     >
       {isButton ? (
-        <button
-          onClick={onClick}
-          className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-yellow-500 to-yellow-600 text-blue-900 font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 hover:from-yellow-400 hover:to-yellow-500 hover:shadow-lg border border-yellow-300"
-        >
-          <Icon size={18} />
-          <span>{label}</span>
-        </button>
+        <motion.div whileHover={{ scale: 1.05, y: -1 }} whileTap={{ scale: 0.97 }}>
+          <Link
+            to={to}
+            onClick={() => setOpen(false)}
+            className="flex items-center space-x-2 px-5 py-2.5 bg-gradient-to-r from-indigo-500 to-sky-500 text-white font-semibold rounded-xl shadow-md shadow-indigo-200/60 hover:shadow-lg hover:shadow-sky-200/60 transition-shadow duration-300 border border-transparent"
+          >
+            <Icon size={16} className="text-white" />
+            <span>{label}</span>
+          </Link>
+        </motion.div>
       ) : (
         <Link
           to={to}
           onClick={() => setOpen(false)}
-          className="flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-300 transform hover:scale-105 hover:bg-white/10 hover:shadow-md border border-transparent hover:border-white/20"
+          className="flex items-center space-x-2 px-4 py-2 rounded-xl transition-colors duration-200 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50/80"
         >
-          <Icon
-            size={18}
-            className="transition-transform duration-300 group-hover:scale-110 group-hover:rotate-12"
-          />
-          <span className="font-medium">{label}</span>
+          <motion.div
+            animate={hoveredItem === label ? { scale: 1.2, rotate: 8 } : { scale: 1, rotate: 0 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 15 }}
+          >
+            <Icon size={16} className={hoveredItem === label ? 'text-indigo-500' : 'text-slate-400'} />
+          </motion.div>
+          <span className="font-medium text-sm">{label}</span>
         </Link>
       )}
 
-      {/* Hover effect line */}
-      <div className={`absolute bottom-0 left-0 w-0 h-0.5 bg-yellow-400 transition-all duration-300 group-hover:w-full ${hoveredItem === label ? 'w-full' : ''}`}></div>
+      {/* Animated underline */}
+      {!isButton && (
+        <motion.div
+          className="absolute -bottom-1 left-3 right-3 h-0.5 bg-gradient-to-r from-indigo-500 to-sky-400 rounded-full"
+          initial={{ scaleX: 0, opacity: 0 }}
+          animate={hoveredItem === label ? { scaleX: 1, opacity: 1 } : { scaleX: 0, opacity: 0 }}
+          transition={{ duration: 0.25 }}
+          style={{ originX: 0.5 }}
+        />
+      )}
     </div>
   );
 
+  const mobileMenuVariants = {
+    hidden: { opacity: 0, y: -10, height: 0 },
+    visible: {
+      opacity: 1, y: 0, height: 'auto',
+      transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] }
+    },
+    exit: {
+      opacity: 0, y: -8, height: 0,
+      transition: { duration: 0.2, ease: 'easeIn' }
+    }
+  };
+
+  const mobileItemVariants = {
+    hidden: { opacity: 0, x: -10 },
+    visible: (i) => ({ opacity: 1, x: 0, transition: { delay: i * 0.05, duration: 0.3 } }),
+  };
+
   return (
-    <nav className="bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900 text-white shadow-2xl sticky top-0 z-50 backdrop-blur-sm bg-opacity-95 border-b border-yellow-500/30">
+    <nav className="glass-nav sticky top-0 z-50 text-slate-700">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center py-3">
 
-          {/* Logo with Actual Image */}
-          <Link
-            to="/"
-            className="flex items-center space-x-3 group transition-all duration-300 hover:scale-105"
-            onMouseEnter={() => setHoveredItem('logo')}
-            onMouseLeave={() => setHoveredItem(null)}
-          >
-            <div className="bg-white p-2 rounded-xl shadow-lg group-hover:shadow-xl transition-all duration-300">
-              <img
-                src="/logo.png"
-                alt="Uni House Logo"
-                className="h-10 w-10 object-contain transition-transform duration-300 group-hover:scale-110"
-                onError={(e) => {
-                  // Fallback if logo doesn't load
-                  e.target.style.display = 'none';
-                  e.target.nextSibling.style.display = 'flex';
-                }}
-              />
-              {/* Fallback logo */}
-              <div
-                className="h-10 w-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-lg hidden"
-                style={{ display: 'none' }}
+          {/* Logo */}
+          <motion.div whileHover={{ scale: 1.03 }} transition={{ type: 'spring', stiffness: 400 }}>
+            <Link
+              to="/"
+              className="flex items-center space-x-3 group"
+            >
+              <motion.div
+                whileHover={{ rotate: 5 }}
+                transition={{ type: 'spring', stiffness: 300 }}
+                className="bg-white p-2 rounded-2xl shadow-sm group-hover:shadow-md transition-shadow duration-300 border border-slate-100"
               >
-                UH
-              </div>
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">
-                Uni House
-              </h1>
-              <p className="text-xs text-blue-200 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                Student Hostels
-              </p>
-            </div>
-          </Link>
-
-          {/* Mobile Menu Button with animation */}
-          <button
-            onClick={() => setOpen(!open)}
-            className="md:hidden p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-all duration-300 transform hover:scale-110"
-          >
-            {open ? (
-              <div className="w-6 h-6 relative">
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-6 h-0.5 bg-white transform rotate-45 transition-transform duration-300"></div>
-                  <div className="w-6 h-0.5 bg-white transform -rotate-45 absolute transition-transform duration-300"></div>
+                <img
+                  src="/logo.png"
+                  alt="Uni House Logo"
+                  className="h-10 w-10 object-contain"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.nextSibling.style.display = 'flex';
+                  }}
+                />
+                <div
+                  className="h-10 w-10 bg-gradient-to-br from-indigo-500 to-sky-500 rounded-xl flex items-center justify-center text-white font-bold text-lg"
+                  style={{ display: 'none' }}
+                >
+                  UH
                 </div>
+              </motion.div>
+              <div>
+                <h1 className="text-2xl font-bold gradient-text leading-tight">Uni House</h1>
+                <p className="text-xs text-slate-500 font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  Student Hostels
+                </p>
               </div>
-            ) : (
-              <div className="w-6 h-6 flex flex-col justify-between">
-                <div className="w-full h-0.5 bg-white transform transition-all duration-300"></div>
-                <div className="w-full h-0.5 bg-white transform transition-all duration-300"></div>
-                <div className="w-full h-0.5 bg-white transform transition-all duration-300"></div>
-              </div>
-            )}
-          </button>
+            </Link>
+          </motion.div>
+
+          {/* Mobile Menu Button */}
+          <motion.button
+            onClick={() => setOpen(!open)}
+            whileTap={{ scale: 0.9 }}
+            className="md:hidden p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors duration-200"
+          >
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div
+                key={open ? 'close' : 'open'}
+                initial={{ rotate: -90, opacity: 0 }}
+                animate={{ rotate: 0, opacity: 1 }}
+                exit={{ rotate: 90, opacity: 0 }}
+                transition={{ duration: 0.15 }}
+              >
+                {open ? <X size={24} /> : <Menu size={24} />}
+              </motion.div>
+            </AnimatePresence>
+          </motion.button>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex items-center space-x-3">
-
+          <div className="hidden md:flex items-center space-x-1">
             {!user ? (
               <>
-                <NavItem
-                  to="/login"
-                  label="Login"
-                  icon={() => <span className="text-lg">🔑</span>}
-                />
-                <Link
-                  to="/register"
-                  onClick={() => setOpen(false)}
-                  className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-yellow-500 to-yellow-600 text-blue-900 font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 hover:from-yellow-400 hover:to-yellow-500 hover:shadow-lg border border-yellow-300"
-                >
-                  <span className="text-lg">🚀</span>
-                  <span>Register</span>
-                </Link>
+                <NavItem to="/login" label="Login" icon={Key} />
+                <div className="pl-1">
+                  <NavItem to="/register" label="Register" icon={Rocket} isButton={true} />
+                </div>
               </>
             ) : (
               <>
-                <NavItem
-                  to="/search"
-                  label="Find Boarding"
-                  icon={() => <span className="text-lg">🔍</span>}
-                />
-                <NavItem
-                  to="/services"
-                  label="Services"
-                  icon={() => <span className="text-lg">🛠️</span>}
-                />
+                <NavItem to="/search" label="Find Boarding" icon={Search} />
+                <NavItem to="/services" label="Services" icon={PenTool} />
 
-                {user.role === 'student' && (
-                  <NavItem
-                    to="/favorites"
-                    label="Favorites"
-                    icon={() => <span className="text-lg">❤️</span>}
-                  />
-                )}
+                {user.role === 'student' && <NavItem to="/favorites" label="Favorites" icon={Heart} />}
 
                 {user.role === 'owner' && (
                   <>
-                    <NavItem
-                      to="/add-boarding"
-                      label="Add Boarding"
-                      icon={() => <span className="text-lg">➕</span>}
-                    />
-                    <NavItem
-                      to="/dashboard"
-                      label="Dashboard"
-                      icon={() => <span className="text-lg">📊</span>}
-                    />
+                    <NavItem to="/add-boarding" label="Add Boarding" icon={Plus} />
+                    <NavItem to="/dashboard" label="Dashboard" icon={BarChart3} />
                   </>
                 )}
 
                 {user.role === 'service' && (
                   <>
-                    <NavItem
-                      to="/add-service"
-                      label="Add Service"
-                      icon={() => <span className="text-lg">➕</span>}
-                    />
-                    <NavItem
-                      to="/my-services"
-                      label="My Services"
-                      icon={() => <span className="text-lg">🔧</span>}
-                    />
+                    <NavItem to="/add-service" label="Add Service" icon={Plus} />
+                    <NavItem to="/my-services" label="My Services" icon={Wrench} />
                   </>
                 )}
 
-                {user.role === 'admin' && (
-                  <NavItem
-                    to="/admin"
-                    label="Admin"
-                    icon={() => <span className="text-lg">⚙️</span>}
-                  />
-                )}
+                {user.role === 'admin' && <NavItem to="/admin" label="Admin" icon={Settings} />}
 
-                {/* User Greeting with animation */}
-                <div
-                  className="flex items-center space-x-2 px-3 py-2 bg-white/5 rounded-lg border border-white/10 hover:border-white/20 transition-all duration-300 transform hover:scale-105"
-                  onMouseEnter={() => setHoveredItem('user')}
-                  onMouseLeave={() => setHoveredItem(null)}
+                <div className="h-8 w-px bg-slate-200 mx-2" />
+
+                {/* User Badge */}
+                <motion.div
+                  whileHover={{ scale: 1.03 }}
+                  className="flex items-center space-x-2 px-3 py-1.5 bg-white rounded-xl border border-slate-200 hover:border-indigo-200 hover:shadow-sm transition-all duration-200 cursor-default"
                 >
-                  <div className="w-8 h-8 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center text-blue-900 font-bold text-sm shadow-lg">
+                  <motion.div
+                    whileHover={{ scale: 1.1 }}
+                    className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-sky-400 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-sm"
+                  >
                     {user.name.charAt(0).toUpperCase()}
-                  </div>
-                  <span className="font-medium">Hi, {user.name.split(' ')[0]}</span>
-                </div>
+                  </motion.div>
+                  <span className="font-semibold text-slate-700 text-sm">{user.name.split(' ')[0]}</span>
+                </motion.div>
 
-                {/* Logout with enhanced animation */}
-                <button
+                {/* Logout */}
+                <motion.button
                   onClick={handleLogout}
-                  className="flex items-center space-x-2 px-4 py-2 bg-white/10 text-white rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:bg-white/20 border border-white/20 hover:border-white/40 group"
-                  onMouseEnter={() => setHoveredItem('logout')}
-                  onMouseLeave={() => setHoveredItem(null)}
+                  whileHover={{ scale: 1.05, x: 2 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="flex items-center space-x-1.5 px-3 py-2 text-rose-500 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors duration-200"
+                  title="Logout"
                 >
-                  <span className="text-lg transform transition-transform duration-300 group-hover:rotate-12">🚪</span>
-                  <span className="font-medium">Logout</span>
-                </button>
+                  <LogOut size={17} />
+                </motion.button>
               </>
             )}
-
           </div>
         </div>
 
-        {/* Mobile Dropdown with enhanced animations */}
-        {open && (
-          <div className="md:hidden border-t border-white/20 pt-4 pb-4">
-            <div className="flex flex-col space-y-3">
-
-              {!user ? (
-                <>
-                  <NavItem
-                    to="/login"
-                    label="Login"
-                    icon={() => <span className="text-lg">🔑</span>}
-                  />
-                  <NavItem
-                    to="/register"
-                    label="Get Started"
-                    icon={() => <span className="text-lg">🚀</span>}
-                    isButton={true}
-                  />
-                </>
-              ) : (
-                <>
-                  <NavItem
-                    to="/search"
-                    label="Find Boarding"
-                    icon={() => <span className="text-lg">🔍</span>}
-                  />
-                  <NavItem
-                    to="/services"
-                    label="Services"
-                    icon={() => <span className="text-lg">🛠️</span>}
-                  />
-
-                  {user.role === 'student' && (
-                    <NavItem
-                      to="/favorites"
-                      label="Favorites"
-                      icon={() => <span className="text-lg">❤️</span>}
-                    />
-                  )}
-
-                  {user.role === 'owner' && (
+        {/* Mobile Dropdown */}
+        <AnimatePresence>
+          {open && (
+            <motion.div
+              key="mobile-menu"
+              variants={mobileMenuVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="md:hidden overflow-hidden"
+            >
+              <div className="border-t border-slate-200 pt-4 pb-4">
+                <div className="flex flex-col space-y-1 bg-white/60 rounded-2xl p-4">
+                  {!user ? (
                     <>
-                      <NavItem
-                        to="/add-boarding"
-                        label="Add Boarding"
-                        icon={() => <span className="text-lg">➕</span>}
-                      />
-                      <NavItem
-                        to="/dashboard"
-                        label="Dashboard"
-                        icon={() => <span className="text-lg">📊</span>}
-                      />
+                      <motion.div custom={0} variants={mobileItemVariants} initial="hidden" animate="visible">
+                        <NavItem to="/login" label="Login" icon={Key} />
+                      </motion.div>
+                      <motion.div custom={1} variants={mobileItemVariants} initial="hidden" animate="visible">
+                        <NavItem to="/register" label="Get Started" icon={Rocket} isButton={true} />
+                      </motion.div>
+                    </>
+                  ) : (
+                    <>
+                      {[
+                        { to: '/search', label: 'Find Boarding', icon: Search, show: true },
+                        { to: '/services', label: 'Services', icon: PenTool, show: true },
+                        { to: '/favorites', label: 'Favorites', icon: Heart, show: user.role === 'student' },
+                        { to: '/add-boarding', label: 'Add Boarding', icon: Plus, show: user.role === 'owner' },
+                        { to: '/dashboard', label: 'Dashboard', icon: BarChart3, show: user.role === 'owner' },
+                        { to: '/add-service', label: 'Add Service', icon: Plus, show: user.role === 'service' },
+                        { to: '/my-services', label: 'My Services', icon: Wrench, show: user.role === 'service' },
+                        { to: '/admin', label: 'Admin', icon: Settings, show: user.role === 'admin' },
+                      ].filter(i => i.show).map((item, idx) => (
+                        <motion.div key={item.label} custom={idx} variants={mobileItemVariants} initial="hidden" animate="visible">
+                          <NavItem to={item.to} label={item.label} icon={item.icon} />
+                        </motion.div>
+                      ))}
+
+                      {/* User info */}
+                      <motion.div
+                        custom={8} variants={mobileItemVariants} initial="hidden" animate="visible"
+                        className="flex items-center space-x-3 p-3 bg-white rounded-xl shadow-sm border border-slate-100 mt-2"
+                      >
+                        <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-sky-500 rounded-full flex items-center justify-center text-white font-bold shadow-md">
+                          {user.name.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <div className="font-semibold text-slate-800 text-sm">{user.name}</div>
+                          <div className="text-xs text-indigo-500 font-medium capitalize">{user.role}</div>
+                        </div>
+                      </motion.div>
+
+                      <motion.button
+                        custom={9} variants={mobileItemVariants} initial="hidden" animate="visible"
+                        onClick={handleLogout}
+                        whileTap={{ scale: 0.97 }}
+                        className="flex items-center space-x-2 px-4 py-3 bg-rose-50 text-rose-600 font-semibold rounded-xl hover:bg-rose-100 transition-colors duration-200 mt-1 justify-center w-full"
+                      >
+                        <LogOut size={16} />
+                        <span>Logout</span>
+                      </motion.button>
                     </>
                   )}
-
-                  {user.role === 'service' && (
-                    <>
-                      <NavItem
-                        to="/add-service"
-                        label="Add Service"
-                        icon={() => <span className="text-lg">➕</span>}
-                      />
-                      <NavItem
-                        to="/my-services"
-                        label="My Services"
-                        icon={() => <span className="text-lg">🔧</span>}
-                      />
-                    </>
-                  )}
-
-                  {user.role === 'admin' && (
-                    <NavItem
-                      to="/admin"
-                      label="Admin"
-                      icon={() => <span className="text-lg">⚙️</span>}
-                    />
-                  )}
-
-                  {/* User info in mobile */}
-                  <div className="flex items-center space-x-3 p-3 bg-white/5 rounded-lg border border-white/10">
-                    <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-blue-500 rounded-full flex items-center justify-center text-white font-bold shadow-lg">
-                      {user.name.charAt(0).toUpperCase()}
-                    </div>
-                    <div>
-                      <div className="font-medium">{user.name}</div>
-                      <div className="text-sm text-blue-200 capitalize">{user.role}</div>
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={handleLogout}
-                    className="flex items-center space-x-2 px-4 py-3 bg-gradient-to-r from-red-500 to-pink-600 rounded-lg transition-all duration-300 transform hover:scale-105 border border-white/20 justify-center"
-                  >
-                    <span className="text-lg">🚪</span>
-                    <span className="font-medium">Logout</span>
-                  </button>
-                </>
-              )}
-
-            </div>
-          </div>
-        )}
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
-
-      {/* Background blur effect when mobile menu is open */}
-      {open && (
-        <div
-          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 md:hidden"
-          onClick={() => setOpen(false)}
-        ></div>
-      )}
     </nav>
   );
 };

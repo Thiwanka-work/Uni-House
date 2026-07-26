@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import axios from 'axios'
+import { CheckCircle2, XCircle, Loader2, MessageCircle } from 'lucide-react'
 
 const OwnerDashboard = () => {
   const { user } = useAuth()
@@ -59,11 +60,26 @@ const OwnerDashboard = () => {
     try {
       await axios.delete(`/api/boardings.php?id=${id}`)
       setBoardings(boardings.filter(b => b.id !== id))
-      fetchStats() // Refresh statistics after deletion
+      fetchStats()
       alert('Boarding deleted successfully!')
     } catch (error) {
       console.error('Error deleting boarding:', error)
       alert('Error deleting boarding. Please try again.')
+    }
+  }
+
+  const toggleAvailability = async (boardingId) => {
+    try {
+      const res = await axios.patch(`/api/availability.php?id=${boardingId}`)
+      if (res.data.success) {
+        setBoardings(prev => prev.map(b =>
+          b.id === boardingId
+            ? { ...b, is_available: res.data.data.is_available ? 1 : 0 }
+            : b
+        ))
+      }
+    } catch (error) {
+      console.error('Error toggling availability:', error)
     }
   }
 
@@ -125,14 +141,23 @@ const OwnerDashboard = () => {
         </div>
       </div>
 
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-wrap justify-between items-center mb-6 gap-3">
         <h1 className="text-3xl font-bold text-gray-800">My Boardings</h1>
-        <Link
-          to="/add-boarding"
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-        >
-          Add New Boarding
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link
+            to="/messages"
+            className="flex items-center gap-2 bg-indigo-50 text-indigo-600 border border-indigo-200 px-4 py-2 rounded-xl hover:bg-indigo-100 transition-colors font-semibold text-sm"
+          >
+            <MessageCircle className="w-4 h-4" />
+            Messages
+          </Link>
+          <Link
+            to="/add-boarding"
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-semibold text-sm"
+          >
+            Add New Boarding
+          </Link>
+        </div>
       </div>
 
       {loading ? (
@@ -190,7 +215,22 @@ const OwnerDashboard = () => {
                     </div>
                   </div> {/* Missing closing div added */}
 
-                  <div className="flex space-x-2 ml-4">
+                  <div className="flex space-x-2 ml-4 flex-shrink-0">
+                    {/* Availability Toggle */}
+                    <button
+                      onClick={() => toggleAvailability(boarding.id)}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                        (boarding.is_available === 1 || boarding.is_available === true || boarding.is_available === undefined)
+                          ? 'bg-emerald-50 text-emerald-600 border border-emerald-200 hover:bg-emerald-100'
+                          : 'bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-100'
+                      }`}
+                      title="Toggle availability"
+                    >
+                      {(boarding.is_available === 1 || boarding.is_available === true || boarding.is_available === undefined)
+                        ? <><CheckCircle2 className="w-3.5 h-3.5" />Available</>
+                        : <><XCircle className="w-3.5 h-3.5" />Full</>
+                      }
+                    </button>
                     <Link
                       to={`/edit-boarding/${boarding.id}`}
                       className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600"

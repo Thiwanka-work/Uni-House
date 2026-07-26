@@ -300,9 +300,16 @@ const SearchBoardings = () => {
                   )}
 
                   <div className="p-4">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                      {boarding.title}
-                    </h3>
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="text-lg font-semibold text-gray-800">
+                        {boarding.title}
+                      </h3>
+                      {/* Availability Badge */}
+                      {(boarding.is_available === 0 || boarding.is_available === false)
+                        ? <span className="flex items-center gap-1 text-xs font-bold text-rose-600 bg-rose-50 border border-rose-200 px-2 py-1 rounded-full flex-shrink-0">Full</span>
+                        : <span className="flex items-center gap-1 text-xs font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-1 rounded-full flex-shrink-0">Available</span>
+                      }
+                    </div>
                     <p className="text-gray-600 text-sm mb-2">{boarding.town}, near {boarding.university}</p>
                     <p className="text-blue-600 font-bold text-lg mb-2">Rs. {boarding.price}/month</p>
 

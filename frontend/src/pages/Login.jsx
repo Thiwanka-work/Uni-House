@@ -2,6 +2,8 @@ import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import Footer from '../components/Footer'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Key, AlertTriangle, Mail, Lock, Eye, EyeOff, LogIn, Loader2, ArrowRight } from 'lucide-react'
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -30,7 +32,7 @@ const Login = () => {
     setError('')
     setLoading(true)
 
-    // Add robot animation when submitting
+    // Add loading animation when submitting
     setTimeout(async () => {
       const result = await login(formData.email, formData.password)
 
@@ -57,166 +59,179 @@ const Login = () => {
 
   return (
     <>
-      <div
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6 }}
         className="min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat bg-fixed relative py-12 px-4 sm:px-6 lg:px-8"
-        style={{
-          backgroundImage: `url('/login-bg.png')`
-        }}
+        style={{ backgroundImage: `url('/login-bg.png')` }}
       >
-        <div className={`max-w-md w-full space-y-8 transition-all duration-500 bg-white/90 p-8 rounded-3xl shadow-2xl backdrop-blur-sm ${shake ? 'animate-shake' : ''}`}>
-
+        <motion.div
+          initial={{ opacity: 0, y: 50, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.6, type: 'spring', stiffness: 180, damping: 20 }}
+          className={`max-w-md w-full space-y-8 glass-card p-10 rounded-[2.5rem] shadow-2xl ${shake ? 'animate-shake' : ''}`}
+        >
           {/* Animated Header */}
           <div className="text-center">
-            <div className="mx-auto w-24 h-24 mb-4 relative">
-              {/* Robot Animation */}
-              <div className={`w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center transform transition-all duration-700 ${loading ? 'animate-bounce rotate-12' : 'hover:scale-110'}`}>
-                <div className="text-white text-2xl">
-                  {loading ? '🤖' : '🔑'}
-                </div>
-              </div>
-              {/* Floating elements */}
-              <div className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-400 rounded-full animate-ping"></div>
-              <div className="absolute -bottom-2 -left-2 w-4 h-4 bg-green-400 rounded-full animate-pulse"></div>
-            </div>
+            <motion.div
+              initial={{ scale: 0, rotate: -15 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ delay: 0.2, type: 'spring', stiffness: 200, damping: 15 }}
+              className="mx-auto w-20 h-20 mb-6 relative"
+            >
+              <motion.div
+                whileHover={{ scale: 1.1, rotate: 6 }}
+                transition={{ type: 'spring', stiffness: 300 }}
+                className="w-full h-full bg-gradient-to-br from-indigo-500 to-sky-500 rounded-3xl flex items-center justify-center shadow-lg shadow-indigo-200"
+              >
+                {loading ? <Loader2 className="text-white w-10 h-10 animate-spin" /> : <Key className="text-white w-10 h-10" />}
+              </motion.div>
+            </motion.div>
 
-            <h2 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Welcome Back!
-            </h2>
-            <p className="mt-2 text-gray-600 text-lg">
+            <motion.h2
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.5 }}
+              className="text-4xl font-extrabold text-slate-800"
+            >
+              Welcome Back
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4 }}
+              className="mt-3 text-slate-500 text-base font-medium"
+            >
               Sign in to your Uni House account
-            </p>
+            </motion.p>
           </div>
 
-          {/* Animated Form */}
-          <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-            {error && (
-              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl animate-pulse flex items-center space-x-2">
-                <span>⚠️</span>
-                <span>{error}</span>
-              </div>
-            )}
+          <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
+            <AnimatePresence>
+              {error && (
+                <motion.div
+                  initial={{ opacity: 0, y: -8, scale: 0.97 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -8, scale: 0.97 }}
+                  transition={{ duration: 0.25 }}
+                  className="bg-rose-50 border border-rose-200 text-rose-600 px-4 py-3 rounded-xl flex items-center space-x-3 shadow-sm"
+                >
+                  <AlertTriangle className="w-5 h-5 flex-shrink-0" />
+                  <span className="text-sm font-medium">{error}</span>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-            {/* Email Input with Animation */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700 flex items-center space-x-2">
-                <span>📧</span>
+            {/* Email Input */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.35 }}
+              className="space-y-2"
+            >
+              <label className="text-sm font-semibold text-slate-700 flex items-center space-x-2">
+                <Mail className="w-4 h-4 text-slate-400" />
                 <span>Email Address</span>
               </label>
-              <div className="relative group">
-                <input
-                  name="email"
-                  type="email"
-                  required
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-300 transform group-hover:scale-105 placeholder-gray-400 text-gray-900 bg-white shadow-sm"
-                  placeholder="Enter your email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  disabled={loading}
-                />
-                <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                  <span className="text-gray-400 group-hover:text-blue-500 transition-colors">✉️</span>
-                </div>
-              </div>
-            </div>
+              <input
+                name="email"
+                type="email"
+                required
+                className="w-full px-5 py-4 border-2 border-transparent bg-slate-50/80 rounded-2xl focus:outline-none focus:border-indigo-400 focus:bg-white transition-all duration-300 placeholder-slate-400 text-slate-800"
+                placeholder="name@university.edu"
+                value={formData.email}
+                onChange={handleChange}
+                disabled={loading}
+              />
+            </motion.div>
 
-            {/* Password Input with Toggle */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700 flex items-center space-x-2">
-                <span>🔒</span>
+            {/* Password Input */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.45 }}
+              className="space-y-2"
+            >
+              <label className="text-sm font-semibold text-slate-700 flex items-center space-x-2">
+                <Lock className="w-4 h-4 text-slate-400" />
                 <span>Password</span>
               </label>
-              <div className="relative group">
+              <div className="relative">
                 <input
                   name="password"
-                  type={showPassword ? "text" : "password"}
+                  type={showPassword ? 'text' : 'password'}
                   required
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-300 transform group-hover:scale-105 placeholder-gray-400 text-gray-900 bg-white shadow-sm pr-12"
+                  className="w-full px-5 py-4 border-2 border-transparent bg-slate-50/80 rounded-2xl focus:outline-none focus:border-indigo-400 focus:bg-white transition-all duration-300 placeholder-slate-400 text-slate-800 pr-14"
                   placeholder="Enter your password"
                   value={formData.password}
                   onChange={handleChange}
                   disabled={loading}
                 />
-                <div className="absolute inset-y-0 right-0 flex items-center pr-3 space-x-2">
-                  <button
-                    type="button"
-                    onClick={togglePasswordVisibility}
-                    className="text-gray-400 hover:text-blue-500 transition-colors transform hover:scale-110"
-                  >
-                    {showPassword ? '👁️' : '👁️‍🗨️'}
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Submit Button with Robot Animation */}
-            <button
-              type="submit"
-              disabled={loading}
-              className={`group relative w-full flex justify-center items-center space-x-3 py-4 px-4 border border-transparent text-lg font-semibold rounded-xl text-white transition-all duration-500 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-opacity-50 ${loading
-                ? 'bg-gradient-to-r from-gray-500 to-gray-600 cursor-not-allowed'
-                : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl'
-                }`}
-            >
-              {loading ? (
-                <>
-                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
-                  <span>🤖 Robot is working...</span>
-                </>
-              ) : (
-                <>
-                  <span className="transform transition-transform group-hover:scale-110">🚀</span>
-                  <span>Sign In</span>
-                </>
-              )}
-            </button>
-
-            {/* Progress Bar for Loading */}
-            {loading && (
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div className="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full animate-pulse"></div>
-              </div>
-            )}
-
-            {/* Register Link */}
-            <div className="text-center pt-4">
-              <p className="text-gray-600">
-                Don't have an account?{' '}
-                <Link
-                  to="/register"
-                  className="font-semibold text-blue-600 hover:text-blue-500 transition-colors duration-300 hover:underline inline-flex items-center space-x-1"
+                <motion.button
+                  type="button"
+                  onClick={togglePasswordVisibility}
+                  whileTap={{ scale: 0.85 }}
+                  className="absolute inset-y-0 right-4 flex items-center text-slate-400 hover:text-indigo-500 transition-colors focus:outline-none"
                 >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </motion.button>
+              </div>
+            </motion.div>
+
+            {/* Submit Button */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.55 }}
+            >
+              <motion.button
+                type="submit"
+                disabled={loading}
+                whileHover={!loading ? { scale: 1.03, y: -2 } : {}}
+                whileTap={!loading ? { scale: 0.97 } : {}}
+                className={`w-full flex justify-center items-center space-x-2 py-4 px-4 text-lg font-bold rounded-2xl text-white transition-colors duration-300 focus:outline-none focus:ring-4 focus:ring-indigo-200 ${
+                  loading
+                    ? 'bg-slate-400 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-indigo-600 to-sky-500 shadow-lg shadow-indigo-200'
+                }`}
+              >
+                {loading ? (
+                  <><Loader2 className="w-5 h-5 animate-spin" /><span>Signing In...</span></>
+                ) : (
+                  <><LogIn className="w-5 h-5" /><span>Sign In</span></>
+                )}
+              </motion.button>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.65 }}
+              className="text-center pt-1"
+            >
+              <p className="text-slate-600 font-medium text-sm">
+                Don't have an account?{' '}
+                <Link to="/register" className="font-bold text-indigo-600 hover:text-sky-500 transition-colors inline-flex items-center gap-1 group">
                   <span>Sign up now</span>
-                  <span className="transform transition-transform hover:translate-x-1">➡️</span>
+                  <motion.span animate={{ x: [0, 3, 0] }} transition={{ repeat: Infinity, duration: 1.5 }}>
+                    <ArrowRight className="w-4 h-4" />
+                  </motion.span>
                 </Link>
               </p>
-            </div>
+            </motion.div>
           </form>
+        </motion.div>
 
-          {/* Decorative Elements */}
-          <div className="absolute top-10 left-10 w-4 h-4 bg-blue-300 rounded-full opacity-50 animate-float"></div>
-          <div className="absolute top-20 right-20 w-6 h-6 bg-purple-300 rounded-full opacity-30 animate-float" style={{ animationDelay: '1s' }}></div>
-          <div className="absolute bottom-20 left-20 w-3 h-3 bg-pink-300 rounded-full opacity-40 animate-float" style={{ animationDelay: '2s' }}></div>
-        </div>
-
-        {/* Custom CSS for animations */}
         <style jsx>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-20px); }
-        }
-        @keyframes shake {
-          0%, 100% { transform: translateX(0); }
-          25% { transform: translateX(-10px); }
-          75% { transform: translateX(10px); }
-        }
-        .animate-float {
-          animation: float 3s ease-in-out infinite;
-        }
-        .animate-shake {
-          animation: shake 0.5s ease-in-out;
-        }
-      `}</style>
-      </div>
+          @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+          }
+          .animate-shake { animation: shake 0.5s ease-in-out; }
+        `}</style>
+      </motion.div>
       <Footer />
     </>
   )
